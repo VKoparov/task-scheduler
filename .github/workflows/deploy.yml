@@ -18,4 +18,4 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y sshpass
           
       - name: Deploy to Raspberry Pi
-        run: sshpass -p mili4ko98 ssh -p 10162 valik98@0.tcp.eu.ngrok.io "bash /home/valik98/deployment/task-scheduler/deploy.sh"
+        run: ssh valik98@0.tcp.eu.ngrok.io "bash /home/valik98/deployment/task-scheduler/deploy.sh"
