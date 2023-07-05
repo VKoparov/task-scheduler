@@ -6,6 +6,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.logging.Level;
@@ -14,8 +17,8 @@ import java.util.logging.Logger;
 @Service
 public class TaskExecuteService {
 
-    @Value("${wake-service.url}")
-    private final String url = "https://valentin-koparov-potfolio-eapd.onrender.com/";
+    @Value("${file-paths.web-urls}")
+    private String webUrls;
 
     private final Logger logger = Logger.getLogger(TaskExecuteService.class.getName());
 
@@ -25,8 +28,13 @@ public class TaskExecuteService {
         this.webClient = WebClient.create();
     }
 
-    @Scheduled(cron = "0 */20 * ? * *")
-    public void wake() {
+    @Scheduled(cron = "${cron.timeout}")
+    public void wake() throws IOException {
+        Files.readAllLines(new File(webUrls).toPath())
+                .forEach(this::queryUrl);
+    }
+
+    private void queryUrl(String url) {
         try {
             int statusCode = Objects.requireNonNull(
                     webClient.get()
