@@ -33,7 +33,7 @@ jobs:
           host: 0.tcp.eu.ngrok.io
           port: 10162
           username: valik98
-          password: mili4ko98
+          password: ${{ secrets.SSH_PASSWORD }}
           source: ./build/libs/task-scheduler.jar
           target: /home/valik98/deployment
           
@@ -43,5 +43,5 @@ jobs:
           host: 0.tcp.eu.ngrok.io
           port: 10162
           username: valik98
-          password: mili4ko98
+          password: ${{ secrets.SSH_PASSWORD }}
           script: bash /home/valik98/deployment/task-scheduler/deploy.sh
