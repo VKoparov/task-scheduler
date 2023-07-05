@@ -14,8 +14,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Install sshpass
-        run: sudo apt-get update && sudo apt-get install -y sshpass
+      
           
       - name: Deploy to Raspberry Pi
-        run: ssh valik98@0.tcp.eu.ngrok.io "bash /home/valik98/deployment/task-scheduler/deploy.sh"
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: 0.tcp.eu.ngrok.io
+          port: 10162
+          username: valik98
+          password: mili4ko98
+          script: bash /home/valik98/deployment/task-scheduler/deploy.sh
