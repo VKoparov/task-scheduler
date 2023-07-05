@@ -3,7 +3,7 @@ name: Deploy to Remote Server
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   deploy:
@@ -18,7 +18,7 @@ jobs:
         uses: actions/setup-java@v2
         with:
           java-version: 17
-          
+
       - name: Install sshpass
         run: sudo apt-get update && sudo apt-get install -y sshpass
 
