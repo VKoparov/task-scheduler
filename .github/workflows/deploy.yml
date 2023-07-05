@@ -28,14 +28,14 @@ jobs:
         shell: bash
 
       - name: Copy JAR file to Raspberry Pi
-        uses: appleboy/scp-action@v0.1.4
+        uses: garygrossgarten/github-action-scp@v0.8.0
         with:
+          local: ./build/libs/task-scheduler-0.0.1-SNAPSHOT.jar
+          remote: /home/valik98/deployment/
           host: 0.tcp.eu.ngrok.io
           port: 10162
           username: valik98
-          key: ${{ secrets.RASPBERRY_PI_SSH_KEY }}
-          source: ./build/libs/task-scheduler-0.0.1-SNAPSHOT.jar
-          target: /home/valik98/deployment/
+          privateKey: ${{ secrets.RASPBERRY_PI_SSH_KEY }}
 
       - name: Deploy to Raspberry Pi
         run: ssh -i ${{ secrets.RASPBERRY_PI_SSH_KEY }} valik98@0.tcp.eu.ngrok.io "bash /home/valik98/deployment/task-scheduler/deploy.sh"
