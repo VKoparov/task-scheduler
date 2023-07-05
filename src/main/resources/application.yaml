@@ -1,2 +1,5 @@
 wake-service:
   url: ""
+
+cron:
+  timeout: ""
