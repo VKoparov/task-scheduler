@@ -35,7 +35,7 @@ jobs:
           username: valik98
           key: ${{ secrets.RASPBERRY_PI_SSH_KEY }}
           source: ./build/libs/task-scheduler-0.0.1-SNAPSHOT.jar
-          target: /home/valik98/deployment/
+          target: ~/home/valik98/deployment/
 
       - name: Deploy to Raspberry Pi
         run: ssh -i ${{ secrets.RASPBERRY_PI_SSH_KEY }} valik98@0.tcp.eu.ngrok.io "bash /home/valik98/deployment/task-scheduler/deploy.sh"
