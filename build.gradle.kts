@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.app"
-version = "0.0.1-SNAPSHOT"
+version = ""
 java.sourceCompatibility = JavaVersion.VERSION_17
 
 repositories {
