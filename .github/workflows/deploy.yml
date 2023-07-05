@@ -29,12 +29,12 @@ jobs:
       - name: Copy JAR file to Raspberry Pi
         uses: appleboy/scp-action@v0.1.4
         with:
-          host: 192.168.1.2
-          port: 52622
+          host: 0.tcp.eu.ngrok.io
+          port: 10162
           username: valik98
           password: mili4ko98
           source: ./task-scheduler/build/libs/task-scheduler-0.0.1-SNAPSHOT.jar
           target: /home/valik98/deployment/
 
       - name: Deploy to Raspberry Pi
-        run: sshpass -p mili4ko98 ssh -p 52622 valik98@192.168.1.2 "bash /home/valik98/deployment/task-scheduler/deploy.sh"
+        run: sshpass -p mili4ko98 ssh -p 10162 0.tcp.eu.ngrok.io "bash /home/valik98/deployment/task-scheduler/deploy.sh"
