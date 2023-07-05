@@ -22,6 +22,10 @@ jobs:
 
       - name: Build Spring application
         run: ./gradlew build
+        
+      - name: List files
+        run: ls
+        shell: bash
 
       - name: Copy JAR file to Raspberry Pi
         uses: appleboy/scp-action@v0.1.4
