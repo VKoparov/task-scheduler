@@ -31,7 +31,7 @@ jobs:
         uses: garygrossgarten/github-action-scp@v0.8.0
         with:
           local: ./build/libs/task-scheduler-0.0.1-SNAPSHOT.jar
-          remote: /home/valik98/deployment/
+          remote: home/valik98
           host: 0.tcp.eu.ngrok.io
           port: 10162
           username: valik98
