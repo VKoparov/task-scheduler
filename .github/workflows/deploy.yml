@@ -20,9 +20,6 @@ jobs:
           java-version: 17
           distribution: adopt-hotspot
 
-      - name: Install sshpass
-        run: sudo apt-get update && sudo apt-get install -y sshpass
-
       - name: Build Spring application
         run: ./gradlew build
 
@@ -33,7 +30,7 @@ jobs:
           port: 10162
           username: valik98
           key: ${{ secrets.RASPBERRY_PI_SSH_KEY }}
-          source: ./build/libs/task-scheduler-0.0.1-SNAPSHOT.jar
+          source: ./task-scheduler/build/libs/task-scheduler-0.0.1-SNAPSHOT.jar
           target: /home/valik98/deployment/
 
       - name: Deploy to Raspberry Pi
