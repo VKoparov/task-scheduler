@@ -1,5 +1,5 @@
-wake-service:
-  url: ""
+file-paths:
+  web-urls: ""
 
 cron:
-  timeout: ""
+  timeout: "0 */15 * ? * *"
