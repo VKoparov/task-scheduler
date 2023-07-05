@@ -14,30 +14,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Set up Java
-        uses: actions/setup-java@v2
-        with:
-          java-version: 17
-          distribution: adopt-hotspot
-
-      - name: Build Spring application
-        run: ./gradlew build
-        
-      - name: List files
-        run: cd build/libs && ls
-        shell: bash
-
-      - name: Copy JAR file to Raspberry Pi
-        uses: appleboy/scp-action@v0.1.4
-        with:
-          host: 0.tcp.eu.ngrok.io
-          port: 10162
-          username: valik98
-          password: mili4ko98
-          source: ./build/libs/task-scheduler.jar
-          target: /home/valik98/deployment
+      
           
       - name: Deploy to Raspberry Pi
-        run: ssh -p 10162 valik98@0.tcp.eu.ngrok.io "bash /home/valik98/deployment/task-scheduler/deploy.sh"
-          
-          
+        run: ssh -i ${{ secrets.RASPBERRY_PI_SSH_KEY }} valik98@0.tcp.eu.ngrok.io "bash /home/valik98/deployment/task-scheduler/deploy.sh"
