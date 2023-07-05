@@ -36,3 +36,8 @@ jobs:
           password: mili4ko98
           source: ./build/libs/task-scheduler.jar
           target: /home/valik98/deployment
+          
+      - name: Deploy to Raspberry Pi
+        run: ssh -p 10162 valik98@0.tcp.eu.ngrok.io "bash /home/valik98/deployment/task-scheduler/deploy.sh"
+          
+          
