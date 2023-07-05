@@ -28,7 +28,7 @@ jobs:
         shell: bash
 
       - name: Copy JAR file to Raspberry Pi
-        uses: appleboy/scp-action@v0.1.3
+        uses: appleboy/scp-action@v0.1.4
         with:
           host: 0.tcp.eu.ngrok.io
           port: 10162
