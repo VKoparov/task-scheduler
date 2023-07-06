@@ -22,26 +22,22 @@ jobs:
 
       - name: Build Spring application
         run: ./gradlew build
-        
-      - name: List files
-        run: cd build/libs && ls
-        shell: bash
 
       - name: Copy JAR file to Raspberry Pi
         uses: appleboy/scp-action@v0.1.4
         with:
-          host: 0.tcp.eu.ngrok.io
-          port: 10162
-          username: valik98
+          host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT }}
+          username: ${{ secrets.SSH_USERNAME }}
           password: ${{ secrets.SSH_PASSWORD }}
-          source: ./build/libs/task-scheduler.jar
-          target: /home/valik98/deployment
+          source: ${{ secrets.SCP_SOURCE }}
+          target: ${{ secrets.SCP_TARGET }}
           
       - name: Deploy to Raspberry Pi
         uses: appleboy/ssh-action@v0.1.10
         with:
-          host: 0.tcp.eu.ngrok.io
-          port: 10162
-          username: valik98
+          host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT }}
+          username: ${{ secrets.SSH_USERNAME }}
           password: ${{ secrets.SSH_PASSWORD }}
-          script: bash /home/valik98/deployment/task-scheduler/deploy.sh
+          script: ${{ secrets.SSH_DEPLOY_SCRIPT }}
