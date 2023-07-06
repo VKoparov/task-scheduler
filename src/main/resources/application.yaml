@@ -3,3 +3,7 @@ file-paths:
 
 cron:
   timeout: "0 */15 * ? * *"
+
+sentry:
+  dsn: ""
+  traces-sample-rate: 1.0

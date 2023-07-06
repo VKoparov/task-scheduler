@@ -1,5 +1,6 @@
 package com.app.taskscheduler.services;
 
+import io.sentry.Sentry;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -46,9 +47,17 @@ public class TaskExecuteService {
                     .value();
             logger.log(Level.INFO, "URL: " + url + " | Status code: " + statusCode + " | Timestamp: " + LocalDateTime.now());
         } catch (WebClientResponseException e) {
-            logger.log(Level.SEVERE, "Error calling URL: " + url + " | Status code: " + e.getStatusCode().value() + " | Timestamp: " + LocalDateTime.now());
+            String errorMessage = "Error calling URL: " + url + " | Status code: " + e.getStatusCode().value() + " | Timestamp: " + LocalDateTime.now();
+            logError(e, errorMessage);
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Unknown error calling URL: " + url + " | Timestamp: " + LocalDateTime.now(), e);
+            String errorMessage = "Unknown error calling URL: " + url + " | Timestamp: " + LocalDateTime.now();
+            logError(e, errorMessage);
         }
+    }
+
+    private void logError(Exception e, String errorMessage) {
+        Sentry.captureException(e);
+        Sentry.captureMessage(errorMessage);
+        logger.log(Level.SEVERE, errorMessage, e);
     }
 }
