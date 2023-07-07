@@ -1,16 +1,18 @@
 package com.app.taskscheduler.services;
 
+import com.app.taskscheduler.constants.EventLog;
 import io.sentry.Sentry;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -37,27 +39,31 @@ public class TaskExecuteService {
 
     private void queryUrl(String url) {
         try {
-            int statusCode = Objects.requireNonNull(
-                    webClient.get()
-                            .uri(url)
-                            .retrieve()
-                            .toBodilessEntity()
-                            .block()
-                    ).getStatusCode()
+            int statusCode = Objects.requireNonNull(sendRequest(url))
+                    .getStatusCode()
                     .value();
-            logger.log(Level.INFO, "URL: " + url + " | Status code: " + statusCode + " | Timestamp: " + LocalDateTime.now());
+            logger.log(Level.INFO, EventLog.SUCCESS(url, statusCode));
+        } catch (WebClientRequestException e) {
+            sendRequest(url);
+            logEvent(e, Level.WARNING, EventLog.WARNING(url));
         } catch (WebClientResponseException e) {
-            String errorMessage = "Error calling URL: " + url + " | Status code: " + e.getStatusCode().value() + " | Timestamp: " + LocalDateTime.now();
-            logError(e, errorMessage);
+            logEvent(e, Level.SEVERE, EventLog.ERROR(url, e.getStatusCode().value()));
         } catch (Exception e) {
-            String errorMessage = "Unknown error calling URL: " + url + " | Timestamp: " + LocalDateTime.now();
-            logError(e, errorMessage);
+            logEvent(e, Level.SEVERE, EventLog.UNKNOWN(url));
         }
     }
 
-    private void logError(Exception e, String errorMessage) {
+    private ResponseEntity<?> sendRequest(String url) {
+        return webClient.get()
+                .uri(url)
+                .retrieve()
+                .toBodilessEntity()
+                .block();
+    }
+
+    private void logEvent(Exception e, Level logLevel, String message) {
         Sentry.captureException(e);
-        Sentry.captureMessage(errorMessage);
-        logger.log(Level.SEVERE, errorMessage, e);
+        Sentry.captureMessage(message);
+        logger.log(logLevel, message, e);
     }
 }
