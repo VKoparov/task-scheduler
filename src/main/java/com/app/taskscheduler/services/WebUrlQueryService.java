@@ -4,7 +4,6 @@ import com.app.taskscheduler.constants.EventLog;
 import io.sentry.Sentry;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
@@ -18,23 +17,27 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Service
-public class TaskExecuteService {
+public class WebUrlQueryService implements Runnable {
 
     @Value("${file-paths.web-urls}")
     private String webUrls;
 
-    private final Logger logger = Logger.getLogger(TaskExecuteService.class.getName());
+    private final Logger logger = Logger.getLogger(WebUrlQueryService.class.getName());
 
     private final WebClient webClient;
 
-    public TaskExecuteService() {
+    public WebUrlQueryService() {
         this.webClient = WebClient.create();
     }
 
-    @Scheduled(cron = "${cron.timeout}")
-    public void wake() throws IOException {
-        Files.readAllLines(new File(webUrls).toPath())
-                .forEach(this::queryUrl);
+    @Override
+    public void run() {
+        try {
+            Files.readAllLines(new File(webUrls).toPath())
+                    .forEach(this::queryUrl);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void queryUrl(String url) {
