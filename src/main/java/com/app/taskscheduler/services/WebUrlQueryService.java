@@ -2,9 +2,7 @@ package com.app.taskscheduler.services;
 
 import com.app.taskscheduler.constants.EventLog;
 import io.sentry.Sentry;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -16,17 +14,16 @@ import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-@Service
 public class WebUrlQueryService implements Runnable {
 
-    @Value("${file-paths.web-urls}")
-    private String webUrls;
-
-    private final Logger logger = Logger.getLogger(WebUrlQueryService.class.getName());
+    private final String webUrls;
 
     private final WebClient webClient;
 
-    public WebUrlQueryService() {
+    private final Logger logger = Logger.getLogger(WebUrlQueryService.class.getName());
+
+    public WebUrlQueryService(String webUrls) {
+        this.webUrls = webUrls;
         this.webClient = WebClient.create();
     }
 
