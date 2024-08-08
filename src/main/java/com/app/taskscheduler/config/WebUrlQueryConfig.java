@@ -9,11 +9,14 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class WebUrlQueryConfig {
 
+    @Value("${escape-token.value}")
+    private String escapeToken;
+
     @Value("${file-paths.web-urls}")
     private String webUrls;
 
     @Bean
     public TaskExecuteComponent taskExecuteComponent() {
-        return new TaskExecuteComponent(new WebUrlQueryService(webUrls));
+        return new TaskExecuteComponent(new WebUrlQueryService(escapeToken, webUrls));
     }
 }

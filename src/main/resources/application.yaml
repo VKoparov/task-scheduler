@@ -1,6 +1,9 @@
 file-paths:
   web-urls: ""
 
+escape-token:
+  value: ""
+
 cron:
   timeout: "0 */15 * ? * *"
 

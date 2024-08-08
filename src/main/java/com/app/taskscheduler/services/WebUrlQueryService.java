@@ -16,13 +16,16 @@ import java.util.logging.Logger;
 
 public class WebUrlQueryService implements Runnable {
 
+    private final String escapeToken;
+
     private final String webUrls;
 
     private final WebClient webClient;
 
     private final Logger logger = Logger.getLogger(WebUrlQueryService.class.getName());
 
-    public WebUrlQueryService(String webUrls) {
+    public WebUrlQueryService(String escapeToken, String webUrls) {
+        this.escapeToken = escapeToken;
         this.webUrls = webUrls;
         this.webClient = WebClient.create();
     }
@@ -31,8 +34,12 @@ public class WebUrlQueryService implements Runnable {
     public void run() {
         try {
             Files.readAllLines(new File(webUrls).toPath())
+                    .stream()
+                    .filter(this::escapeConditions)
                     .forEach(this::queryUrl);
         } catch (IOException e) {
+            logEvent(e, Level.SEVERE, e.getMessage());
+
             throw new RuntimeException(e);
         }
     }
@@ -45,6 +52,7 @@ public class WebUrlQueryService implements Runnable {
             logger.log(Level.INFO, EventLog.SUCCESS(url, statusCode));
         } catch (WebClientRequestException e) {
             sendRequest(url);
+
             logEvent(e, Level.WARNING, EventLog.WARNING(url));
         } catch (WebClientResponseException e) {
             logEvent(e, Level.SEVERE, EventLog.ERROR(url, e.getStatusCode().value()));
@@ -59,6 +67,11 @@ public class WebUrlQueryService implements Runnable {
                 .retrieve()
                 .toBodilessEntity()
                 .block();
+    }
+
+    private Boolean escapeConditions(String url) {
+        return !String.valueOf(url.charAt(0))
+                .equals(this.escapeToken);
     }
 
     private void logEvent(Exception e, Level logLevel, String message) {
