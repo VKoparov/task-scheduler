@@ -26,9 +26,10 @@ jobs:
       # Step 3: Set up SSH access
       - name: Set up SSH
         run: |
+          mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          ssh-keyscan 100.74.149.69 >> ~/.ssh/known_hosts
 
       # Step 4: Deploy to Homelab
       - name: Deploy Application
