@@ -12,8 +12,8 @@ public class WebUrlQueryConfig {
     @Value("${escape-token.value}")
     private String escapeToken;
 
-    @Value("${file-paths.web-urls}")
-    private String webUrls;
+    @Value("${web-urls}")
+    private String[] webUrls;
 
     @Bean
     public TaskExecuteComponent taskExecuteComponent() {

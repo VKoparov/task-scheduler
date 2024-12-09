@@ -1,5 +1,4 @@
-file-paths:
-  web-urls: ""
+web-urls: ""
 
 escape-token:
   value: ""
