@@ -15,7 +15,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Step 2: Connect to Tailscale
+      # Step 2: Connect to Tailscale VPN
       - name: Connect to Tailscale
         uses: tailscale/github-action@v2
         with:
@@ -24,17 +24,15 @@ jobs:
           tags: tag:ci
 
       # Step 3: Set up SSH access
-      - name: Set up SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan 100.74.149.69 >> ~/.ssh/known_hosts
+      - name: Set up SSH key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       # Step 4: Deploy to Homelab
       - name: Deploy Application
         run: |
-          ssh ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} -p ${{ secrets.SSH_PORT }} "
+          ssh -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} "
             # Define paths
             PROJECTS_DIR=${{ secrets.PROJECTS_DIR }}
             SCRIPTS_DIR=${{ secrets.SCRIPTS_DIR }}
@@ -42,13 +40,12 @@ jobs:
             # Get the repository name and navigate to the project location
             REPO_NAME=$(basename -s .git $(git config --get remote.origin.url))
             PROJECT_LOCATION=\$PROJECTS_DIR/\$REPO_NAME
-            mkdir -p \$PROJECT_LOCATION
-            cd \$PROJECT_LOCATION
+            cd \$PROJECTS_DIR
           
             # Clone the repository if it doesn't exist
             if [ ! -d \"\$PROJECT_LOCATION/.git\" ]; then
             echo \"Cloning repository...\"
-            git clone \$REPO_URL
+            git clone git@github.com:VKoparov/task-scheduler.git
             else
             echo \"Repository exists. Pulling latest changes...\"
             cd \$PROJECT_LOCATION
@@ -56,6 +53,7 @@ jobs:
             fi
 
             # Create or update the .env file with secrets
+            cd \$PROJECT_LOCATION
             echo \"WEB_URLS='${{ secrets.WEB_URLS }}'\" > .env
             echo \"CRON_TIMEOUT='${{ secrets.CRON_TIMEOUT }}'\" >> .env
             echo \"SENTRY_DSN='${{ secrets.SENTRY_DSN }}'\" >> .env
