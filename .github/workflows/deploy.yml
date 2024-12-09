@@ -1,4 +1,4 @@
-name: Deploy to Remote Server
+name: Deploy to Homelab
 
 on:
   push:
@@ -11,33 +11,47 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Checkout the repository
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Set up Java
-        uses: actions/setup-java@v2
+      # Step 2: Connect to Tailscale
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v2
         with:
-          java-version: 17
-          distribution: adopt-hotspot
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
 
-      - name: Build Spring application
-        run: ./gradlew build
+      # Step 3: Deploy to Homelab
+      - name: Deploy Application
+        run: |
+          ssh -o "StrictHostKeyChecking=no" ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} "
+            # Define paths
+            export PROJECTS_DIR=${{ secrets.PROJECTS_DIR }}
+            export SCRIPTS_DIR=${{ secrets.SCRIPTS_DIR }}
 
-      - name: Copy JAR file to Raspberry Pi
-        uses: appleboy/scp-action@v0.1.4
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          port: ${{ secrets.SSH_PORT }}
-          username: ${{ secrets.SSH_USERNAME }}
-          password: ${{ secrets.SSH_PASSWORD }}
-          source: ${{ secrets.SCP_SOURCE }}
-          target: ${{ secrets.SCP_TARGET }}
+            # Get the repository name and navigate to the project location
+            REPO_NAME=$(basename -s .git $(git config --get remote.origin.url))
+            PROJECT_LOCATION=\$PROJECTS_DIR/\$REPO_NAME
+            mkdir -p \$PROJECT_LOCATION
+            cd \$PROJECT_LOCATION
           
-      - name: Deploy to Raspberry Pi
-        uses: appleboy/ssh-action@v0.1.10
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          port: ${{ secrets.SSH_PORT }}
-          username: ${{ secrets.SSH_USERNAME }}
-          password: ${{ secrets.SSH_PASSWORD }}
-          script: ${{ secrets.SSH_DEPLOY_SCRIPT }}
+            # Clone the repository if it doesn't exist
+            if [ ! -d \"\$PROJECT_LOCATION/.git\" ]; then
+            echo \"Cloning repository...\"
+            git clone \$REPO_URL
+            else
+            echo \"Repository exists. Pulling latest changes...\"
+            cd \$PROJECT_LOCATION
+            git pull
+            fi
+
+            # Create or update the .env file with secrets
+            echo \"WEB_URLS='${{ secrets.WEB_URLS }}'\" > .env
+            echo \"CRON_TIMEOUT='${{ secrets.CRON_TIMEOUT }}'\" >> .env
+            echo \"SENTRY_DSN='${{ secrets.SENTRY_DSN }}'\" >> .env
+
+            # Run the port assignment script
+            chmod +x \$SCRIPTS_DIR/deploy.sh
+            \$SCRIPTS_DIR/deploy.sh
+          "

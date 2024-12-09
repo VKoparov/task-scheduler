@@ -7,9 +7,11 @@ services:
     container_name: task-scheduler
     ports:
       - "0000:0000"
+    env_file:
+      - .env
     environment:
-      - SERVER_PORT=
-      - CRON_TIMEOUT=
-      - FILE_PATHS_WEB_URLS=
-      - SENTRY_DSN=
+      - SERVER_PORT=0000
+      - WEB_URLS=${WEB_URLS}
+      - CRON_TIMEOUT=${CRON_TIMEOUT}
+      - SENTRY_DSN=${SENTRY_DSN}
     restart: unless-stopped
