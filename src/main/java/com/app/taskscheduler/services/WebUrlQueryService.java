@@ -10,6 +10,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -18,13 +19,13 @@ public class WebUrlQueryService implements Runnable {
 
     private final String escapeToken;
 
-    private final String webUrls;
+    private final String[] webUrls;
 
     private final WebClient webClient;
 
     private final Logger logger = Logger.getLogger(WebUrlQueryService.class.getName());
 
-    public WebUrlQueryService(String escapeToken, String webUrls) {
+    public WebUrlQueryService(String escapeToken, String[] webUrls) {
         this.escapeToken = escapeToken;
         this.webUrls = webUrls;
         this.webClient = WebClient.create();
@@ -33,11 +34,8 @@ public class WebUrlQueryService implements Runnable {
     @Override
     public void run() {
         try {
-            Files.readAllLines(new File(webUrls).toPath())
-                    .stream()
-                    .filter(this::escapeConditions)
-                    .forEach(this::queryUrl);
-        } catch (IOException e) {
+            Arrays.stream(webUrls).toList().forEach(this::queryUrl);
+        } catch (Exception e) {
             logEvent(e, Level.SEVERE, e.getMessage());
 
             throw new RuntimeException(e);
