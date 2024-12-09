@@ -13,7 +13,7 @@ jobs:
     steps:
       # Step 1: Checkout the repository
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       # Step 2: Connect to Tailscale
       - name: Connect to Tailscale
@@ -23,13 +23,20 @@ jobs:
           oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
           tags: tag:ci
 
-      # Step 3: Deploy to Homelab
+      # Step 3: Set up SSH access
+      - name: Set up SSH
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+      # Step 4: Deploy to Homelab
       - name: Deploy Application
         run: |
-          ssh -o "StrictHostKeyChecking=no" ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} -p ${{ secrets.SSH_PORT }} "
+          ssh ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} -p ${{ secrets.SSH_PORT }} "
             # Define paths
-            export PROJECTS_DIR=${{ secrets.PROJECTS_DIR }}
-            export SCRIPTS_DIR=${{ secrets.SCRIPTS_DIR }}
+            PROJECTS_DIR=${{ secrets.PROJECTS_DIR }}
+            SCRIPTS_DIR=${{ secrets.SCRIPTS_DIR }}
 
             # Get the repository name and navigate to the project location
             REPO_NAME=$(basename -s .git $(git config --get remote.origin.url))
