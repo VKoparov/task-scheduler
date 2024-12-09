@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  spring-app:
+    build:
+      context: .
+    container_name: task-scheduler
+    ports:
+      - "0000:0000"
+    environment:
+      - SERVER_PORT=
+      - CRON_TIMEOUT=
+      - FILE_PATHS_WEB_URLS=
+      - SENTRY_DSN=
+    restart: unless-stopped
